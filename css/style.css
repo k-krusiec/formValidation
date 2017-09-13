@@ -1,0 +1,35 @@
+.main-width {
+  width: 800px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+form {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 100px;
+  padding: 50px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+}
+
+label {
+  display: inline-block;
+  text-align: right;
+  width: 200px;
+}
+
+input {
+  width: 400px;
+  height: 30px;
+  margin: 10px;
+  padding: 5px;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.error {
+  border-bottom: 1px solid red;
+}
