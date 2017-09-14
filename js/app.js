@@ -11,12 +11,12 @@ var Module = (function() {
     empty: 'This field is required',
     text: {
       badFormat: 'Incorrect text format',
-      toLong: 'Text should be no longer than 100 characters',
+      toLong: 'Text should be no longer than 100 characters'
     },
     accountNumber: {
       badFormat: 'Incorrect account number format',
       toShort: 'Account number is to short',
-      toLong: 'Account number is to long',
+      toLong: 'Account number is to long'
     },
     amount: {
       badValue: 'Incorrect value',
@@ -26,155 +26,164 @@ var Module = (function() {
       badFormat: 'Incorrect date format',
       badValue: 'Incorrect date'
     }
-
   };
 
-  var setDateField = function() {
+  var setTodaysDate = function() {
     var d = new Date();
     var month = d.getMonth() + 1;
     var day = d.getDate();
 
-    return (day < 10 ? '0' : '') + day + "." + (month < 10 ? '0' : '') + month + '.' + d.getFullYear()
-  }
+    return (day < 10 ? '0' : '') + day + "." + (month < 10 ? '0' : '') + month + '.' + d.getFullYear();
+  };
 
-  var showFieldValidation = function(input, isValid) {
+  var showFieldValidation = function(input, isValid, eMsg) {
+    var inputParent = input.parentNode;
+    var errTemplate = '<p class="error-sausage err-' + input.id +'">' + eMsg + '</p>';
     if (!isValid) {
       // if (!input.parentNode.className
         // || input.parentNode.className.indexOf(options.classError) === -1) {
         // input.parentNode.className += ' ' + options.classError;
-      if (!input.className
-        || input.className.indexOf(options.classError) === -1 ) {
+      if (!input.className || input.className.indexOf(options.classError) === -1) {
         input.className += ' ' + options.classError;
       }
+      if (inputParent.lastChild.nodeName !== 'P') {
+        inputParent.insertAdjacentHTML('beforeend', errTemplate);
+      } else {
+        inputParent.lastChild.innerText = eMsg;
+      }
+
     } else {
       var regError = new RegExp('(\\s|^)' + options.classError + '(\\s|$)');
-      // console.log(regError);
       // input.parentNode.className = input.parentNode.className.replace(regError, '');
       input.className = input.className.replace(regError, '');
+      inputParent.lastChild.outerHTML  = ''; //wywapa okienko z błędem
     }
-  }
+  };
 
   var testInputText = function(input) {
     var inputValue = input.value;
     var pattern = /^([0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\.\-\"\(\)\s])+$/;
     var isValid = true;
+    var eMsg;
 
     if (!inputValue) {
       isValid = false;
-      console.log(errorMsg.empty);
+      eMsg = errorMsg.empty;
     } else if (inputValue.length > 100) {
       isValid = false;
-      console.log(errorMsg.text.toLong);
+      eMsg = errorMsg.text.toLong;
     } else if (!pattern.test(inputValue)) {
       isValid = false;
-      console.log(errorMsg.text.badFormat);
+      eMsg = errorMsg.text.badFormat;
     }
 
     if (isValid) {
-      showFieldValidation(input, true);
+      showFieldValidation(input, true, eMsg);
       return true;
     } else {
-      showFieldValidation(input, false);
+      showFieldValidation(input, false, eMsg);
       return false;
     }
-  }
+  };
 
-  var testAccNumber = function (input) {
-    var inputValue = input.value.trim().replace(/\s/g,'');
+  var testAccNumber = function(input) {
+    var inputValue = input.value.replace(/\s/g,'');
     var pattern = /^[0-9]{2}\s?([0-9]{4}\s?){5}([0-9]{4})$/;
     var isValid = true;
+    var eMsg;
 
     if (!inputValue) {
       isValid = false;
-      console.log(errorMsg.empty);
-    } else if (inputValue.length >= 26) {
-      if (!pattern.test(inputValue)) {
+      eMsg = errorMsg.empty;
+    } else if ((!pattern.test(inputValue) && isNaN(inputValue)) || (inputValue.length > 0 && inputValue.length !== 26)) {
         isValid = false;
-        console.log(errorMsg.amount.badFormat);
+        eMsg = errorMsg.accountNumber.badFormat;
       }
-    }
 
     if (isValid) {
-      showFieldValidation(input, true);
+      showFieldValidation(input, true, eMsg);
       return true;
     } else {
-      showFieldValidation(input, false);
+      showFieldValidation(input, false, eMsg);
       return false;
     }
-  }
+  };
 
   var testAmountValue = function(input) {
     var inputValue = input.value;
     var pattern = /^[0-9\s?]{1,}([\s\.|\,]?){1}[0-9]{0,2}$/;
     var isValid = true;
+    var eMsg;
 
     if (!inputValue) {
       isValid = false;
-      console.log(errorMsg.empty);
+      eMsg = errorMsg.empty;
     } else if (!pattern.test(inputValue)) {
       isValid = false;
-      console.log(errorMsg.amount.badValue);
+      eMsg = errorMsg.amount.badValue;
     } else if (inputValue.charAt(0) === ',' || inputValue.charAt(0) === '.') {
       isValid = false;
-      console.log(errorMsg.amount.badValue);
+      eMsg = errorMsg.amount.badValue;
     } else if (inputValue.length > 0 || inputValue.indexOf(',') !== -1) {
         inputValue = parseFloat(inputValue.replace(/\s/g,'').replace(/\,/g,'.')).toFixed(2);
         if (inputValue <= 0) {
           isValid = false;
-          console.log(errorMsg.amount.badValue);
+          eMsg = errorMsg.amount.badValue
         }
     }
 
     if (isValid) {
-      showFieldValidation(input, true);
+      showFieldValidation(input, true, eMsg);
       return true;
     } else {
-      showFieldValidation(input, false);
+      showFieldValidation(input, false, eMsg);
       return false;
     }
-  }
+  };
 
   var testDateValue = function(input) {
     var inputValue = input.value;
     var pattern = /^(0[1-9]|[12][0-9]|3[01])[-/.](0[1-9]|1[012])[- /.](19|20\d\d)$/;
     var isValid = true;
+    var usersDate;
+    var today = setTodaysDate();
+    var eMsg;
 
     inputValue = inputValue.replace(/\s/g,'').replace(/\,/g,'.').replace(/\-/g,'').replace(/\//g,'.');
-    var usersDate = inputValue.split('.');
+
+    usersDate = inputValue.split('.');
     usersDate = new Date(usersDate[2],usersDate[1]-1,usersDate[0]);
     usersDate = usersDate.getTime() / 1000;
 
-    var today = setDateField();
     today = today.split('.');
+
     todaySec = new Date(today[2],today[1]-1,today[0]);
     todaySec = todaySec.getTime() / 1000;
 
     if (!inputValue) {
       isValid = false;
-      console.log(errorMsg.empty);
+      eMsg = errorMsg.empty;
     } else if (!pattern.test(inputValue)) {
       isValid = false;
-      console.log(errorMsg.date.badFormat);
+      eMsg = errorMsg.date.badFormat;
     } else if (todaySec > usersDate) {
       isValid = false;
-      console.log(errorMsg.date.badValue);
+      eMsg = errorMsg.date.badValue;
     }
 
     if (isValid) {
-      showFieldValidation(input, true);
+      showFieldValidation(input, true, eMsg);
       return true;
     } else {
-      showFieldValidation(input, false);
+      showFieldValidation(input, false, eMsg);
       return false;
     }
-  }
+  };
 
   var prepareElements = function() {
     //znajdź elementy które mają dataset 'data-validation'
     var elements = options.form.querySelectorAll('input[required], textarea[required], select[required]');
-    var dateInput = options.form.querySelector('input[data-type="date"]').value = setDateField();
-
-    // console.log( elements );
+    var dateInput = options.form.querySelector('input[data-type="date"]').value = setTodaysDate();
 
     //https://css-tricks.com/snippets/javascript/loop-queryselectorall-matches/
     var forEach = function(array, callback, scope) {
@@ -184,11 +193,9 @@ var Module = (function() {
     };
 
     forEach(elements, function(index, element) {
-      // console.log('element: ', element); // passes index + value back!
       element.removeAttribute('required');
       element.className += ' required';
       if (element.nodeName.toUpperCase() === 'INPUT') {
-        // console.log( element );
         var dataType = element.dataset.type;
 
         if (!dataType) {
@@ -200,19 +207,16 @@ var Module = (function() {
         //standars input validations
         if (dataType === 'TEXT') {
           element.addEventListener('keyup', function() {testInputText(element)});
-          element.addEventListener('blur', function () {testInputText(element)});
+          element.addEventListener('blur', function() {testInputText(element)});
         }
         // if (dataType === 'NUMBER') {
-        //   console.log('dataType: ', element.name, dataType);
         //   element.addEventListener('keyup', function() {console.log(element.value);});
         //   element.addEventListener('blur', function() {console.log(element.value);});
         // }
         // if (dataType == 'CHECKBOX') {
-        //   console.log('dataType: ', element.name, dataType);
         //   element.addEventListener('click', function() {console.log(element.value);});
         // }
         // if (dataType == 'RADIO') {
-        //   console.log('dataType: ', element.name, dataType);
         //   element.addEventListener('click', function() {console.log(element.value);});
         // }
 
@@ -239,7 +243,7 @@ var Module = (function() {
       //   element.addEventListener( 'change', function () { console.log( element.value ); } );
       // }
     });
-  }
+  };
 
   var formSubmit = function() {
     options.form.addEventListener('submit', function(e) {
@@ -282,10 +286,7 @@ var Module = (function() {
         // if (element.nodeName.toUpperCase() == 'SELECT') {
         //   if (!testInputSelect(element)) validated = false;
         // }
-      })
-
-      console.log(validated);
-      console.log(this);
+      });
 
       if (validated) {
         this.submit();
@@ -293,8 +294,8 @@ var Module = (function() {
         return false;
       }
 
-    })
-  }
+    });
+  };
 
   var init = function(_options) { // to jest parametr z Module.init({form : form});
     options = {
@@ -303,19 +304,17 @@ var Module = (function() {
     }
     //jeżeli nie ma forma to daj warn w konsoli
     //sprawdza w funkcji init -> options -> form
-    if ( options.form === null
-      || options.form === undefined
-      || options.form.length === 0 ) {
-            console.warn('Module: Źle przekazany formularz');
-            return false;
-        }
+    if ( options.form === null || options.form === undefined || options.form.length === 0 ) {
+      console.warn('Module: Źle przekazany formularz');
+      return false;
+    }
 
     prepareElements();
     formSubmit();
-  }
+  };
 
   return {
     init: init
-  }
+  };
 
 })();

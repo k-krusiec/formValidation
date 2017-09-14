@@ -38,3 +38,28 @@ input:focus {
 .error {
   border-bottom: 1px solid red;
 }
+
+.error-sausage {
+  position: relative;
+  display: inline-block;
+  max-width: 300px;
+  margin: -5px 0 0 0;
+  padding: 10px;
+  background: red;
+  border-radius: 5px;
+  text-align: left;
+  font-style: italic;
+  color: white;
+}
+
+.error-sausage:before {
+  position: absolute;
+  top: -10px;
+  left: calc(50% - 5px);
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid red;
+}
