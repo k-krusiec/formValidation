@@ -1,8 +1,3 @@
-document.addEventListener('DOMContentLoaded', function() {
-  var form = document.querySelector('.form');
-  Module.init({form: form});
-})
-
 var Module = (function() {
   var options = {};
   var classError = {};
@@ -40,9 +35,6 @@ var Module = (function() {
     var inputParent = input.parentNode;
     var errTemplate = '<p class="error-sausage err-' + input.id +'">' + eMsg + '</p>';
     if (!isValid) {
-      // if (!input.parentNode.className
-        // || input.parentNode.className.indexOf(options.classError) === -1) {
-        // input.parentNode.className += ' ' + options.classError;
       if (!input.className || input.className.indexOf(options.classError) === -1) {
         input.className += ' ' + options.classError;
       }
@@ -54,9 +46,8 @@ var Module = (function() {
 
     } else {
       var regError = new RegExp('(\\s|^)' + options.classError + '(\\s|$)');
-      // input.parentNode.className = input.parentNode.className.replace(regError, '');
       input.className = input.className.replace(regError, '');
-      inputParent.lastChild.outerHTML  = ''; //wywapa okienko z błędem
+      inputParent.lastChild.outerHTML  = '';
     }
   };
 
@@ -181,14 +172,12 @@ var Module = (function() {
   };
 
   var prepareElements = function() {
-    //znajdź elementy które mają dataset 'data-validation'
     var elements = options.form.querySelectorAll('input[required], textarea[required], select[required]');
     var dateInput = options.form.querySelector('input[data-type="date"]').value = setTodaysDate();
 
-    //https://css-tricks.com/snippets/javascript/loop-queryselectorall-matches/
     var forEach = function(array, callback, scope) {
       for (var i = 0; i < array.length; i++) {
-        callback.call(scope, i, array[i]); // passes back stuff we need
+        callback.call(scope, i, array[i]);
       }
     };
 
@@ -209,16 +198,6 @@ var Module = (function() {
           element.addEventListener('keyup', function() {testInputText(element)});
           element.addEventListener('blur', function() {testInputText(element)});
         }
-        // if (dataType === 'NUMBER') {
-        //   element.addEventListener('keyup', function() {console.log(element.value);});
-        //   element.addEventListener('blur', function() {console.log(element.value);});
-        // }
-        // if (dataType == 'CHECKBOX') {
-        //   element.addEventListener('click', function() {console.log(element.value);});
-        // }
-        // if (dataType == 'RADIO') {
-        //   element.addEventListener('click', function() {console.log(element.value);});
-        // }
 
         //custom input validations
 
@@ -235,13 +214,6 @@ var Module = (function() {
           element.addEventListener('blur', function() {testDateValue(element)});
         }
       }
-      // if ( element.nodeName.toUpperCase() === 'TEXTAREA' ) {
-      //   element.addEventListener('keyup', function() {console.log(element.value);});
-      //   element.addEventListener('blur', function() {console.log(element.value);});
-      // }
-      // if ( element.nodeName.toUpperCase() === 'SELECT' ) {
-      //   element.addEventListener( 'change', function () { console.log( element.value ); } );
-      // }
     });
   };
 
@@ -253,7 +225,7 @@ var Module = (function() {
       var elements = options.form.querySelectorAll('.required');
       var forEach = function(array, callback, scope) {
         for (var i = 0; i < array.length; i++) {
-          callback.call(scope, i, array[i]); // passes back stuff we need
+          callback.call(scope, i, array[i]);
         }
       };
 
@@ -280,12 +252,6 @@ var Module = (function() {
             if (!testDateValue(element)) validated = false;
           }
         }
-        // if (element.nodeName.toUpperCase() == 'TEXTAREA') {
-        //   if (!testInputText(element)) validated = false;
-        // }
-        // if (element.nodeName.toUpperCase() == 'SELECT') {
-        //   if (!testInputSelect(element)) validated = false;
-        // }
       });
 
       if (validated) {
@@ -297,13 +263,11 @@ var Module = (function() {
     });
   };
 
-  var init = function(_options) { // to jest parametr z Module.init({form : form});
+  var init = function(_options) {
     options = {
-      form: _options.form || null, //przekazany parametr - form znaleziony w DOMie, lub null jeżeli nieznaleziony
+      form: _options.form || null,
       classError: _options.classError || 'error'
     }
-    //jeżeli nie ma forma to daj warn w konsoli
-    //sprawdza w funkcji init -> options -> form
     if ( options.form === null || options.form === undefined || options.form.length === 0 ) {
       console.warn('Module: Źle przekazany formularz');
       return false;
@@ -318,3 +282,8 @@ var Module = (function() {
   };
 
 })();
+
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.querySelector('.form');
+  Module.init({form: form});
+})
